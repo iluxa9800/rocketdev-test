@@ -16,35 +16,36 @@
 
 ## Запуск
 
-Перед запуском создайте самоподписанный сертификат или поместите свои сертификаты в каталог `certs/`
+Перед запуском создайте самоподписанный сертификат или поместите свои сертификаты в каталог certs/
+
 bash
 
 docker compose up -d
 
 ## Доступ
 
-| Сервис   | Адрес |
 
-| WordPress| http://site.local |
-| Grafana  | http://metrics.local |
+ Сервис    Адрес 
+
+ WordPress https://site.local 
+ Grafana   http://metrics.local 
+
 
 ## Мониторинг
 
-Grafana подключена к Prometheus через provisioning.
+Используется Node Exporter для сбора системных метрик
 
-Используется Node Exporter для сбора системных метрик.
+Grafana автоматически подключается к Prometheus через provisioning
+
+## Принятые решения
+
+- Использован Docker Compose для развёртывания сервисов.
+- Для `site.local` настроен HTTPS с самоподписанным сертификатом.
+- Доступ к `/wp-admin` и `/wp-login.php` ограничен по списку разрешённых IP.
+- Для защиты SSH настроен Fail2Ban.
 
 
- HTTPS через самоподписанный сертификат.
- Ограничен доступ к `/wp-admin` и `/wp-login.php` по списку разрешённых IP.
- Fail2Ban защищает SSH от подбора паролей.
 
-  \## Возможные проблемы
-Если возникает ошибка:
+## Трудозатраты
 
-permission denied while trying to connect to the docker.sock
-
-Добавьте пользователя в группу docker:
-sudo usermod -aG docker <username>
-
-После этого переподключитесь к системе.
+Тестовое задание было выполнено примерно за 28 часов
