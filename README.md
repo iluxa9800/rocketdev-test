@@ -12,9 +12,11 @@
 - Prometheus
 - Node Exporter
 - Grafana
+- Fail2Ban
 
 ## Запуск
 
+Перед запуском создайте самоподписанный сертификат или поместите свои сертификаты в каталог `certs/`
 bash
 
 docker compose up -d
@@ -32,12 +34,12 @@ Grafana подключена к Prometheus через provisioning.
 
 Используется Node Exporter для сбора системных метрик.
 
-## HTTPS
 
-Для тестового задания используется самоподписанный SSL-сертификат.
+ HTTPS через самоподписанный сертификат.
+ Ограничен доступ к `/wp-admin` и `/wp-login.php` по списку разрешённых IP.
+ Fail2Ban защищает SSH от подбора паролей.
 
-
-\## Возможные проблемы
+  \## Возможные проблемы
 Если возникает ошибка:
 
 permission denied while trying to connect to the docker.sock
