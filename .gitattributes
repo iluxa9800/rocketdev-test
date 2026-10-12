@@ -1,0 +1,3 @@
+fail2ban/*.sh text eol=lf
+fail2ban/*.local text eol=lf
+scripts/*.sh text eol=lf

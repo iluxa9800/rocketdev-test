@@ -15,11 +15,20 @@
 - Fail2Ban
 
 ## Запуск
+1. Создайте самоподписанный сертификат или поместите свои сертификаты в каталог certs/
 
-Перед запуском создайте самоподписанный сертификат или поместите свои сертификаты в каталог certs/
+   openssl req -x509 -nodes -newkey rsa:2048 -days 365 \
+     -keyout certs/site.local.key \
+     -out certs/site.local.crt \
+     -subj "/CN=site.local" \
+     -addext "subjectAltName=DNS:site.local"
 
-bash
+   chmod 600 certs/site.local.key
 
+2. Создайте локальный .env по образцу .env.example и замените заглушки своими паролями.
+
+3. Проверьте Compose и запустите сервисы:
+docker compose config --quiet
 docker compose up -d
 
 ## Доступ
@@ -42,9 +51,14 @@ Grafana автоматически подключается к Prometheus чер
 - Использован Docker Compose для развёртывания сервисов.
 - Для `site.local` настроен HTTPS с самоподписанным сертификатом.
 - Доступ к `/wp-admin` и `/wp-login.php` ограничен по списку разрешённых IP.
-- Для защиты SSH настроен Fail2Ban.
+- Для настройки защиты SSH на Ubuntu запустите из корня проекта:
 
+```bash
+sudo bash fail2ban/install.sh
+sudo fail2ban-client status sshd
 
+```
+После запуска контейнеров выполните проверку: `bash scripts/check.sh`.
 
 ## Трудозатраты
 

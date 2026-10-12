@@ -6,8 +6,8 @@ services:
     environment: 
       MYSQL_DATABASE: rocketdb
       MYSQL_USER: ilya
-      MYSQL_PASSWORD: superpass
-      MYSQL_ROOT_PASSWORD: "1"
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
     volumes: 
       - "mysql_data:/var/lib/mysql"
     networks:
@@ -44,11 +44,12 @@ services:
       - go-network
     environment:
       - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=Qwerty123
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD in .env}
 
   nginx:
     depends_on:
       - wordpress
+      - grafana
     image: nginx
     container_name: nginx-web
     restart: always 
@@ -70,7 +71,7 @@ services:
     environment:
       WORDPRESS_DB_HOST: mysql
       WORDPRESS_DB_USER: ilya
-      WORDPRESS_DB_PASSWORD: superpass
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
       WORDPRESS_DB_NAME: rocketdb
     volumes:
       - "wordpress_data:/var/www/html"
