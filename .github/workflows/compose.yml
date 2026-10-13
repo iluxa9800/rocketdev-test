@@ -14,5 +14,12 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
+      - name: Проверить файлы и Bash-скрипты
+        run: |
+          test -f docker/prometheus.yml
+          test -f docker/grafana.yml
+          test -f nginx/nginx.conf
+          bash -n fail2ban/install.sh
+          bash -n scripts/check.sh
       - name: Проверить Compose
         run: docker compose --env-file .env.example config --quiet
