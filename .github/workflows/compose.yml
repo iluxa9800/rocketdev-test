@@ -18,7 +18,7 @@ jobs:
         run: |
           test -f docker/prometheus.yml
           test -f docker/grafana.yml
-          test -f nginx/nginx221212.conf
+          test -f nginx/nginx221212.conf || { echo "Ошибка: Файл nginx/nginx221212.conf не найден; exit 1; }"
           bash -n fail2ban/install.sh
           bash -n scripts/check.sh
       - name: Проверить Compose
