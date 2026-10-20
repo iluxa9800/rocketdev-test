@@ -42,3 +42,18 @@ jobs:
             -v "$PWD/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro" \
             -v "$PWD/certs:/etc/nginx/certs:ro" \
             nginx nginx -t
+
+      - name: Запустить MySQL и дождаться готовности
+        run: |
+          docker compose --env-file .env.example up -d --wait --wait-timeout 180 mysql
+
+      - name: Показать диагностику MySQL при ошибке
+        if: failure()
+        run: |
+          docker compose --env-file .env.example ps -a
+          docker compose --env-file .env.example logs --tail=100 mysql
+
+      - name: Удалить тестовое окружение
+        if: always()
+        run: |
+          docker compose --env-file .env.example down --volumes --remove-orphans
