@@ -58,7 +58,7 @@ jobs:
             $db = new mysqli(
               getenv("WORDPRESS_DB_HOST"),
               getenv("WORDPRESS_DB_USER"),
-              getenv("WORDPRESS_DB_PASSWORD"),
+              "NE_PRAVILNI_password",
               getenv("WORDPRESS_DB_NAME")
             );
             $result = $db->query("SELECT 1");
