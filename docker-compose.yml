@@ -3,6 +3,17 @@ services:
     image: mysql 
     container_name: mysql 
     restart: always 
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          MYSQL_PWD="$${MYSQL_PASSWORD}"
+          mysql --host=127.0.0.1 --user="$${MYSQL_USER}"
+          --database="$${MYSQL_DATABASE}" --execute="SELECT 1"
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
     environment: 
       MYSQL_DATABASE: rocketdb
       MYSQL_USER: ilya
@@ -64,8 +75,9 @@ services:
 
   wordpress:
     depends_on:
-      - mysql
-    image: wordpress 
+      mysql:
+        condition: service_healthy
+    image: wordpress
     container_name: wordpress
     restart: always 
     environment:
