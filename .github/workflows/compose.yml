@@ -42,3 +42,41 @@ jobs:
             -v "$PWD/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro" \
             -v "$PWD/certs:/etc/nginx/certs:ro" \
             nginx nginx -t
+
+      - name: Запустить MySQL и дождаться готовности
+        run: |
+          docker compose --env-file .env.example up -d --wait --wait-timeout 180 mysql
+
+      - name: Запустить WordPress
+        run: |
+          docker compose --env-file .env.example up -d wordpress
+
+      - name: Проверить подключение WordPress к MySQL
+        run: |
+          docker compose --env-file .env.example exec -T wordpress php -r '
+            mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+            $db = new mysqli(
+              getenv("WORDPRESS_DB_HOST"),
+              getenv("WORDPRESS_DB_USER"),
+              getenv("WORDPRESS_DB_PASSWORD"),
+              getenv("WORDPRESS_DB_NAME")
+            );
+            $result = $db->query("SELECT 1");
+            $row = $result->fetch_row();
+            if ($row[0] !== "1") {
+              fwrite(STDERR, "Неожиданный результат SELECT 1\n");
+              exit(1);
+            }
+            echo "Подключение из WordPress к MySQL: OK\n";
+          '
+
+      - name: Показать диагностику  при ошибке
+        if: failure()
+        run: |
+          docker compose --env-file .env.example ps -a
+          docker compose --env-file .env.example logs --tail=100 mysql wordpress
+
+      - name: Удалить тестовое окружение
+        if: always()
+        run: |
+          docker compose --env-file .env.example down --volumes --remove-orphans
