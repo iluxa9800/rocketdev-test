@@ -75,7 +75,7 @@ jobs:
 
       - name: Посмотреть HTTP-ответ WordPress через Nginx
         run: |
-          curl --insecure --silent --show-error \
+          curl --insecure --silent --show-error --location \
             --connect-timeout 3 --max-time 10 \
             --retry 15 --retry-delay 2 --retry-connrefused \
             --resolve site.local:443:127.0.0.1 \
