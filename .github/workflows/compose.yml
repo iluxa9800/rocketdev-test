@@ -69,12 +69,24 @@ jobs:
             }
             echo "Подключение из WordPress к MySQL: OK\n";
           '
+      - name: Запустить Grafana и Nginx
+        run: |
+          docker compose --env-file .env.example up -d grafana nginx
+
+      - name: Посмотреть HTTP-ответ WordPress через Nginx
+        run: |
+          curl --insecure --silent --show-error --location \
+            --connect-timeout 3 --max-time 10 \
+            --retry 15 --retry-delay 2 --retry-connrefused \
+            --resolve site.local:443:127.0.0.1 \
+            --dump-header - --output /dev/null \
+            https://site.local/
 
       - name: Показать диагностику  при ошибке
         if: failure()
         run: |
           docker compose --env-file .env.example ps -a
-          docker compose --env-file .env.example logs --tail=100 mysql wordpress
+          docker compose --env-file .env.example logs --tail=100 mysql wordpress grafana nginx
 
       - name: Удалить тестовое окружение
         if: always()
