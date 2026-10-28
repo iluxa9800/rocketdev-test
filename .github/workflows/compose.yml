@@ -73,14 +73,28 @@ jobs:
         run: |
           docker compose --env-file .env.example up -d grafana nginx
 
-      - name: Посмотреть HTTP-ответ WordPress через Nginx
+      - name: Проверить HTTP-ответ WordPress через Nginx
         run: |
-          curl --insecure --silent --show-error --location \
+          response=$(curl --insecure --silent --show-error \
             --connect-timeout 3 --max-time 10 \
             --retry 15 --retry-delay 2 --retry-connrefused \
             --resolve site.local:443:127.0.0.1 \
-            --dump-header - --output /dev/null \
-            https://site.local/
+            --output /dev/null \
+            --write-out '%{http_code} %{redirect_url}' \
+            https://site.local/)
+
+          read -r http_code redirect_url <<< "$response"
+
+          echo "HTTP-код: $http_code"
+          echo "Адрес перенаправления: $redirect_url"
+
+          if [ "$http_code" = "302" ] && [ "$redirect_url" = "https://site.local/wp-admin/install.php" ]; then
+            echo "Проверка пройдена"
+            exit 0
+          else
+            echo "Ошибка: ожидали HTTP 302 и перенаправление на установку WordPress"
+            exit 1
+          fi
 
       - name: Показать диагностику  при ошибке
         if: failure()
