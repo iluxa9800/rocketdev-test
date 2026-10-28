@@ -88,7 +88,7 @@ jobs:
           echo "HTTP-код: $http_code"
           echo "Адрес перенаправления: $redirect_url"
 
-          if [ "$http_code" = "200" ] && [ "$redirect_url" = "https://site.local/wp-admin/install.php" ]; then
+          if [ "$http_code" = "302" ] && [ "$redirect_url" = "https://site.local/wp-admin/install.php" ]; then
             echo "Проверка пройдена"
             exit 0
           else
