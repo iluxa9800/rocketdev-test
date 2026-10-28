@@ -69,12 +69,38 @@ jobs:
             }
             echo "Подключение из WordPress к MySQL: OK\n";
           '
+      - name: Запустить Grafana и Nginx
+        run: |
+          docker compose --env-file .env.example up -d grafana nginx
+
+      - name: Проверить HTTP-ответ WordPress через Nginx
+        run: |
+          response=$(curl --insecure --silent --show-error \
+            --connect-timeout 3 --max-time 10 \
+            --retry 15 --retry-delay 2 --retry-connrefused \
+            --resolve site.local:443:127.0.0.1 \
+            --output /dev/null \
+            --write-out '%{http_code} %{redirect_url}' \
+            https://site.local/)
+
+          read -r http_code redirect_url <<< "$response"
+
+          echo "HTTP-код: $http_code"
+          echo "Адрес перенаправления: $redirect_url"
+
+          if [ "$http_code" = "302" ] && [ "$redirect_url" = "https://site.local/wp-admin/install.php" ]; then
+            echo "Проверка пройдена"
+            exit 0
+          else
+            echo "Ошибка: ожидали HTTP 302 и перенаправление на установку WordPress"
+            exit 1
+          fi
 
       - name: Показать диагностику  при ошибке
         if: failure()
         run: |
           docker compose --env-file .env.example ps -a
-          docker compose --env-file .env.example logs --tail=100 mysql wordpress
+          docker compose --env-file .env.example logs --tail=100 mysql wordpress grafana nginx
 
       - name: Удалить тестовое окружение
         if: always()
